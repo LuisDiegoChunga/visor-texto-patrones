@@ -27,48 +27,27 @@ public class MostrarDocumentoServlet extends HttpServlet {
     protected void doPost(
             HttpServletRequest req,
             HttpServletResponse resp) throws ServletException, IOException {
-
+        
+        /*
+        1. RECIBE parametros del request
+        2. Realiza alguna tarea con los parametros
+        3. Devuelve una respuesta
+        */
+        
+        
         String titulo = req.getParameter("titulo");
         String contenido = req.getParameter("contenido");
         String tipo = req.getParameter("tipo");
-
-        if (tipo.equals("pdf")) {
-            resp.setContentType("application/pdf");
+        
+        GestorRenderizado gestor = new GestorRenderizado();
+        ByteArrayOutputStream baos = 
+                gestor.renderizar(titulo, contenido, tipo);
+        
+        baos.writeTo(resp.getOutputStream());
             
-            ModoVisualizacionAdapter adapter = new PDFAdapter();
-            ByteArrayOutputStream baos = adapter.renderizar(titulo, contenido);
-            baos.writeTo(resp.getOutputStream());
-            
-            resp.getOutputStream().flush();
-        } else if (tipo.equals("html")) {
-            ModoVisualizacionAdapter adapter = new HTMLAdapter();
-            ByteArrayOutputStream baos = adapter.renderizar(titulo, contenido);
-            baos.writeTo(resp.getOutputStream());
-            resp.getOutputStream().flush();
-        }
-
+        resp.getOutputStream().flush();
+       
     }
 
-    private ByteArrayOutputStream getByteArrayOutputStream(String ruta) throws IOException {
-
-        File file = new File(ruta);
-
-        FileInputStream fis = new FileInputStream(file);
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[256];
-        try {
-            for (int readNum; (readNum = fis.read(buf)) != -1;) {
-                bos.write(buf, 0, readNum); //no doubt here is 0
-                //Writes len bytes from the specified byte array starting at offset off to this byte array output stream.
-                System.out.println("read " + readNum + " bytes,");
-            }
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-
-        return bos;
-    }
-
+    
 }
